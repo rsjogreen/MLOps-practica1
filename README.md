@@ -62,3 +62,9 @@ Añade las dependencias con versiones fijadas (`==`). Cada comando `poetry add` 
 poetry add "prefect==3.8.8" "mlflow==3.17.0" "scikit-learn==1.9.1" "pandas==3.0.6" "numpy==2.5.4" "pyyaml==6.0.3"
 poetry add --group dev "pytest==9.1.1"
 ```
+
+desde la raiz del repositorio ejecutar
+
+$env:PREFECT_API_URL = "http://localhost:4200/api"
+$env:MLFLOW_TRACKING_URI = "http://localhost:5000"
+poetry run python flows/prueba_flow.py

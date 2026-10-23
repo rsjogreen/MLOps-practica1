@@ -1,0 +1,3 @@
+# Opción B (sin Docker): versiones fijadas. Instalar en un entorno con Python 3.12 (ver README.md).
+mlflow==3.17.0
+prefect==3.8.8

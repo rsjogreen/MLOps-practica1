@@ -1,0 +1,37 @@
+# Opción A: MLflow y Prefect con Docker Compose. Uso desde services/:
+#   docker compose up -d     # MLflow en http://localhost:5000, Prefect en http://localhost:4200
+#   docker compose down      # para los servicios; los datos se conservan
+#
+# Imágenes oficiales, sin `build:`: así no hace falta instalar paquetes con pip dentro de un contenedor.
+# Versiones fijadas: MLflow 3.17.0 coincide con actividades/actividad-1/pyproject.toml.
+# Opción B (sin Docker): ver README.md.
+
+services:
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v3.17.0
+    command: >
+      mlflow server --host 0.0.0.0 --port 5000
+      --backend-store-uri sqlite:////mlflow_store/mlflow.db
+      --artifacts-destination /mlflow_store/artifacts
+      --serve-artifacts
+      --allowed-hosts "localhost:*,127.0.0.1:*,mlflow:*"
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlflow_store:/mlflow_store
+
+  # Servidor de Prefect (API y UI). Su base de datos SQLite queda en el volumen `prefect_data`, fuera de git.
+  prefect-server:
+    image: prefecthq/prefect:3.8.8-python3.12
+    command: prefect server start --host 0.0.0.0 --port 4200
+    restart: unless-stopped
+    ports:
+      - "4200:4200"
+    environment:
+      PREFECT_HOME: /data/prefect
+    volumes:
+      - prefect_data:/data/prefect
+
+volumes:
+  prefect_data:

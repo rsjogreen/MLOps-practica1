@@ -1,0 +1,23 @@
+# Configuración del proyecto (actividad 1).
+# Todo lo que puede cambiar (datos, modelo, MLflow) vive aquí, no en el código.
+
+datos:
+  ruta: data/churn_sintetico.csv   # relativa a actividades/actividad-1/
+
+division:
+  test_size: 0.2
+  random_state: 42          # también se registra como semilla en MLflow
+
+modelo:
+  tipo: logistic_regression   # logistic_regression | gradient_boosting
+  parametros:                 # argumentos del estimador de sklearn
+    C: 1.0
+    max_iter: 1000
+
+mlflow:
+  tracking_uri: http://localhost:5000  # servidor de MLflow de services/. Sin servidor: sqlite:///mlflow.db. MLFLOW_TRACKING_URI, si existe, tiene prioridad
+  experimento: churn-training-mlops    # nombre del experimento donde se agrupan los runs
+  nombre_run: churn-training       # nombre de cada run dentro del experimento
+
+metricas:
+  umbral: 0.5                         # probabilidad a partir de la cual se predice churn (Exited = 1)

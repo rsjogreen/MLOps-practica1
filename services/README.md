@@ -76,13 +76,13 @@ Esta opción usa la misma base de datos de MLflow (`mlflow_store/mlflow.db`) que
 2. Abre http://localhost:5000: debe cargar la UI de MLflow.
 3. Abre http://localhost:4200: debe cargar la UI de Prefect.
 
-Las dos páginas se ven vacías hasta que se ejecuta un flow. Para que aparezcan runs, ejecuta un flow con estas variables definidas en la misma terminal:
+Las dos páginas se ven vacías hasta que se ejecuta un flow. Desde la raíz del repositorio, ejecuta el flow de prueba:
 
 ```powershell
-$env:PREFECT_API_URL = "http://localhost:4200/api"
-$env:MLFLOW_TRACKING_URI = "http://localhost:5000"
-python tu_flow.py
+poetry run python flows/prueba_flow.py
 ```
+
+Los flows del repositorio se conectan por defecto a `http://127.0.0.1:4200/api` (Prefect) y `http://127.0.0.1:5000` (MLflow), así que no es necesario definir variables para usar los servicios locales. Si usas otras direcciones, configura `PREFECT_API_URL` y `MLFLOW_TRACKING_URI` antes de ejecutar el flow.
 
 Después, el run aparece en http://localhost:4200/runs con estado **Completed**, y el experimento aparece en http://localhost:5000 si el flow registra en MLflow.
 
@@ -90,5 +90,5 @@ Después, el run aparece en http://localhost:4200/runs con estado **Completed**,
 
 - **`Cannot connect to the Docker daemon` o `dockerDesktopLinuxEngine`:** Docker Desktop no está abierto. Ábrelo y espera a que esté en marcha.
 - **El puerto 5000 o 4200 ya está en uso:** otro programa lo ocupa, o tienes las dos opciones levantadas a la vez. Para una de ellas antes de arrancar la otra.
-- **La UI de Prefect no muestra runs:** el flow no tiene `PREFECT_API_URL` definida, o el servidor no está levantado.
-- **La UI de MLflow no muestra experimentos:** el flow no tiene `MLFLOW_TRACKING_URI` definida. Si no la defines, MLflow guarda en `mlflow.db` dentro de la actividad.
+- **La UI de Prefect no muestra runs:** comprueba que el servidor responde en `http://127.0.0.1:4200/api/health`; para destinos distintos, configura `PREFECT_API_URL`.
+- **La UI de MLflow no muestra experimentos:** comprueba que el servidor responde en `http://127.0.0.1:5000/health`; para destinos distintos, configura `MLFLOW_TRACKING_URI`.

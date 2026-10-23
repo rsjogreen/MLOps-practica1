@@ -2,11 +2,11 @@
 
 Pasos: cargar datos → entrenar y registrar en MLflow → resumen (artefacto de Prefect)
 
-Requisitos: servicios levantados (ver services/README.md) y las variables de entorno:
-    PREFECT_API_URL=http://localhost:4200/api
-    MLFLOW_TRACKING_URI=http://localhost:5000
+Requisitos: servicios levantados (ver services/README.md). Por defecto se conectan
+en http://127.0.0.1:4200/api y http://127.0.0.1:5000; las variables de entorno
+PREFECT_API_URL y MLFLOW_TRACKING_URI permiten sobrescribir esas direcciones.
 
-Ejecución (desde la raíz de actividad-1):
+Ejecución (desde la raíz del repositorio):
     poetry run python flows/experimento_flow.py
 """
 import os
@@ -16,6 +16,7 @@ import yaml
 from mlflow.models import infer_signature
 from prefect import flow, task
 from prefect.artifacts import create_markdown_artifact
+from prefect.settings import PREFECT_API_URL, temporary_settings
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
@@ -25,6 +26,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from scripts.load_data import cargar_datos as leer_datos
+
+os.environ.setdefault("MLFLOW_SUPPRESS_PRINTING_URL_TO_STDOUT", "true")
 
 CONFIG = "configs/config.yaml"
 
@@ -98,7 +101,11 @@ def entrenar_y_registrar(df, cfg):
     }
 
     # 4. Registrar el run en MLflow. MLFLOW_TRACKING_URI, si existe, tiene prioridad sobre el YAML.
-    mlflow.set_tracking_uri(os.environ.get("MLFLOW_TRACKING_URI", cfg["mlflow"]["tracking_uri"]))
+    mlflow.set_tracking_uri(
+        os.environ.get("MLFLOW_TRACKING_URI")
+        or cfg["mlflow"]["tracking_uri"]
+        or "http://127.0.0.1:5000"
+    )
     mlflow.set_experiment(cfg["mlflow"]["experimento"])
     with mlflow.start_run(run_name=cfg["mlflow"]["nombre_run"]) as run:
         mlflow.log_params({"modelo": tipo, **parametros, "semilla": division["random_state"], "umbral": umbral})
@@ -138,4 +145,6 @@ def churn_training():
 
 
 if __name__ == "__main__":
-    churn_training()
+    api_url = os.environ.get("PREFECT_API_URL") or "http://127.0.0.1:4200/api"
+    with temporary_settings({PREFECT_API_URL: api_url}):
+        churn_training()

@@ -1,4 +1,34 @@
- # Guía de ejecución
+# Integrantes
+
+- Mario Alejandro Mendoza Suarez
+- Jose Esteban Arcos Muñoz
+- Robert Douglas Sjogreen Escorcia
+
+# Estructura del proyecto
+
+```text
+MLOps-practica1/
+├── configs/
+│   └── config.yaml
+├── data/
+│   └── churn_sintetico.csv
+├── flows/
+│   ├── experimento_flow.py
+│   └── prueba_flow.py
+├── scripts/
+│   ├── generate_data.py
+│   └── load_data.py
+├── services/
+│   ├── docker-compose.yml
+│   ├── requirements.txt
+│   ├── CLAUDE.md
+│   └── README.md
+├── pyproject.toml
+├── poetry.lock
+└── README.md
+```
+
+# Guía de ejecución
 
 ## 1. Crear el repositorio en GitHub
 

@@ -13,9 +13,11 @@ MLOps-practica1/
 ├── data/
 │   └── churn_sintetico.csv
 ├── flows/
+│   ├── __init__.py
 │   ├── experimento_flow.py
 │   └── prueba_flow.py
 ├── scripts/
+│   ├── __init__.py
 │   ├── generate_data.py
 │   └── load_data.py
 ├── services/
@@ -61,7 +63,7 @@ Reemplaza `URL_DEL_REPOSITORIO.git` por la URL del repositorio y `MY_REPO` por e
 
 ## 4. Crear la estructura del proyecto
 
-Un integrante crea la estructura de carpetas del proyecto y sube los cambios. Git no versiona carpetas vacías: agrega un archivo `__init__.py` a cada carpeta que deba versionarse como paquete de Python.
+Un integrante crea la estructura de carpetas del proyecto y sube los cambios. Git no versiona carpetas vacías. Las carpetas con módulos Python que se importan como paquetes deben incluir `__init__.py`; en este proyecto se usa en `flows/` y `scripts/`.
 
 ## 5. Completar `.gitignore`
 
@@ -71,6 +73,8 @@ Añade estas entradas al `.gitignore`, ya que la plantilla de Python no las cubr
 mlruns/
 mlflow.db
 mlflow_store/
+__pycache__/
+*.py[cod]
 ```
 
 ## 6. Crear el entorno con Poetry
@@ -93,8 +97,38 @@ poetry add "prefect==3.8.8" "mlflow==3.17.0" "scikit-learn==1.9.1" "pandas==3.0.
 poetry add --group dev "pytest==9.1.1"
 ```
 
-desde la raiz del repositorio ejecutar
+## 8. Instalar el entorno al clonar
 
+Los demás integrantes clonan el repositorio y, desde su raíz, instalan las dependencias registradas en `poetry.lock`:
+
+```powershell
+git clone URL_DEL_REPOSITORIO.git
+cd MY_REPO
+poetry install
+poetry run python -c "import prefect, mlflow, sklearn; print('ok')"
+```
+
+No es necesario ejecutar `poetry add` al clonar. Si cambian las dependencias, quien las cambie debe actualizar y subir tanto `pyproject.toml` como `poetry.lock`.
+
+## 9. Levantar y validar los servicios
+
+Con Docker Desktop iniciado, desde la raíz del repositorio ejecuta:
+
+```powershell
+docker compose -f services/docker-compose.yml up -d
+```
+
+Comprueba que las interfaces estén disponibles en [MLflow](http://localhost:5000) y [Prefect](http://localhost:4200). Luego, desde la raíz, ejecuta el flow de prueba:
+
+```powershell
 $env:PREFECT_API_URL = "http://localhost:4200/api"
 $env:MLFLOW_TRACKING_URI = "http://localhost:5000"
+$env:PYTHONIOENCODING = "utf-8"
 poetry run python flows/prueba_flow.py
+```
+
+El run `prueba` debe aparecer como **Completed** en Prefect, y el experimento `prueba-validacion` con el run `prueba-mlflow` debe aparecer en MLflow. Para detener los servicios:
+
+```powershell
+docker compose -f services/docker-compose.yml down
+```

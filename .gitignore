@@ -1,3 +1,5 @@
 mlruns/
 mlflow.db
 mlflow_store/
+__pycache__/
+*.py[cod]
